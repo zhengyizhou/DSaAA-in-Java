@@ -14,7 +14,7 @@ public class EX04_MyArrayList<T> implements Iterable<T> {
     private int theSize;
     private T[] theItems;
 
-    //默认的构造函数,new时情况此表
+    //默认的构造函数,new时清空此表
     public EX04_MyArrayList(){
         clean();
     }
@@ -56,6 +56,7 @@ public class EX04_MyArrayList<T> implements Iterable<T> {
         return oldVal;
     }
 
+    //用来扩充数组容量,或者收缩数组(当newCapacity==size()时)
     public void ensureCapacity(int newCapacity){
         if(newCapacity <  size()) return;
         T[] old = theItems;
@@ -67,10 +68,66 @@ public class EX04_MyArrayList<T> implements Iterable<T> {
         }
     }
 
+    //在尾端添加元素
+    public boolean add(T newVal){
+        add(size(),newVal);
+        return true;
+    }
 
-    @Override
-    public Iterator<T> iterator() {
-        return null;
+    //在指定的位置添加元素
+    public void add(int idx, T newVal){
+        if(idx < 0 || idx > size())
+            throw new ArrayIndexOutOfBoundsException();
+        if(theSize == theItems.length){
+            ensureCapacity(theSize * 2 + 1);
+        }
+        for (int i = theSize; i > idx; i--) {
+            theItems[i] = theItems[i-1];
+        }
+        theItems[idx] = newVal;
+        theSize++;
+    }
+
+    //在指定的位置删除元素
+    public T remove(int idx){
+        if(idx < 0 || idx >= size())
+            throw new ArrayIndexOutOfBoundsException();
+        T oldVal = theItems[idx];
+        for(int i = idx; i < size() - 1; i++){
+            theItems[i] = theItems[i+1];
+        }
+        theSize--;
+        return oldVal;
+    }
+
+    public Iterator<T> iterator(){
+        return new ArrayListIterator();
+    }
+
+    //用内部类来实现Iterator迭代器
+    private class ArrayListIterator implements Iterator<T>{
+        private int current = 0;
+        @Override
+        public boolean hasNext() {
+            return current < size();
+        }
+
+        @Override
+        public T next() {
+            if(!hasNext())
+                throw new ArrayIndexOutOfBoundsException();
+            return theItems[current++];
+        }
+
+        @Override
+        public void remove() {
+            EX04_MyArrayList.this.remove(--current);
+        }
+
+        @Override
+        public void forEachRemaining(Consumer<? super T> action) {
+
+        }
     }
 
     @Override
